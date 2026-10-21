@@ -19,7 +19,8 @@ use rmcp::{
     ErrorData as McpError, ServerHandler,
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
     model::{
-        CallToolResult, Content, Implementation, ProtocolVersion, ServerCapabilities, ServerInfo,
+        CallToolResult, ContentBlock, Implementation, ProtocolVersion, ServerCapabilities,
+        ServerConfig,
     },
     schemars, tool, tool_handler, tool_router,
 };
@@ -63,11 +64,13 @@ impl FolkMcp {
     }
 
     fn text_result(text: impl Into<String>) -> ToolResult {
-        Ok(CallToolResult::success(vec![Content::text(text.into())]))
+        Ok(CallToolResult::success(vec![ContentBlock::text(
+            text.into(),
+        )]))
     }
 
     fn error_result(msg: impl Into<String>) -> ToolResult {
-        Ok(CallToolResult::error(vec![Content::text(msg.into())]))
+        Ok(CallToolResult::error(vec![ContentBlock::text(msg.into())]))
     }
 }
 
@@ -112,14 +115,14 @@ impl FolkMcp {
 
 #[tool_handler]
 impl ServerHandler for FolkMcp {
-    fn get_info(&self) -> ServerInfo {
+    fn get_info(&self) -> ServerConfig {
         // The server is named for the archive it serves; its two tools stay
         // `folk`/`folk_schema`, which is what a caller types.
         let server_info = Implementation::new("mainlynorfolk-mcp", env!("CARGO_PKG_VERSION"))
             .with_title("Mainly Norfolk Archive MCP Server")
             .with_website_url("https://github.com/radiosilence/mainlynorfolk-mcp");
 
-        ServerInfo::new(ServerCapabilities::builder().enable_tools().build())
+        ServerConfig::new(ServerCapabilities::builder().enable_tools().build())
             // Only the fallback for a client asking for a version the SDK
             // doesn't know; anything known is echoed back during negotiation.
             .with_protocol_version(ProtocolVersion::LATEST)
