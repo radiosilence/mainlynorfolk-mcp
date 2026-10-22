@@ -56,6 +56,7 @@ jobs:
       rust: ${{ steps.filter.outputs.rust }}
       apple: ${{ steps.filter.outputs.apple }}
       docker: ${{ steps.filter.outputs.docker }}
+      workflows: ${{ steps.filter.outputs.workflows }}
       release: ${{ steps.filter.outputs.release }}
       version: ${{ steps.filter.outputs.version }}
     steps:
@@ -87,7 +88,7 @@ jobs:
         # command rather than an answer, so every question is asked in a
         # condition.
         run: |
-          rust=true apple=true docker=true release=false
+          rust=true apple=true docker=true workflows=true release=false
           version_of() { sed -n 's/^version = "\(.*\)"/\1/p' | head -1; }
           # A pull request merged or closed as its run was created would
           # otherwise hold runners for a change that is already in.
@@ -141,10 +142,11 @@ jobs:
           touches() { printf '%s\n' "$files" | grep -E "$1" | grep -qvE '\.md$'; }
           if [ "$state" != "OPEN" ]; then
             echo "pull request #$PR is no longer open -- skipping everything"
-            rust=false apple=false docker=false release=false
+            rust=false apple=false docker=false workflows=false release=false
           elif [ "$EVENT" != "workflow_dispatch" ] && [ -n "$base" ] && files=$(git diff --name-only "$base" HEAD); then
             echo "changes since $(git rev-parse --short "$base"):"
             printf '%s\n' "$files" | sed 's/^/  /'
+            touches '^\.github/(workflows|actions)/' || workflows=false
             # Anything cargo compiles or that decides how, and the formatter's
             # and linter's settings. The parser tests read tests/fixtures/
             # with include_str!.
@@ -185,6 +187,7 @@ jobs:
             echo "rust=$rust"
             echo "apple=$apple"
             echo "docker=$docker"
+            echo "workflows=$workflows"
             echo "release=$release"
             echo "version=$version"
           } | tee -a "$GITHUB_OUTPUT"
@@ -227,6 +230,17 @@ jobs:
             echo "cancelling run $id"
             gh run cancel "$id" --repo "$GITHUB_REPOSITORY" || true
           done
+
+  actionlint:
+    name: Actionlint
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.workflows == 'true'
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The image bundles shellcheck, which checks the `run:` scripts.
+      - run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
 
   fmt:
     name: Format
@@ -425,7 +439,7 @@ jobs:
     name: Checks
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [changes, fmt, linux, apple, linux-build, container]
+    needs: [changes, fmt, actionlint, linux, apple, linux-build, container]
     if: always()
     steps:
       - env:

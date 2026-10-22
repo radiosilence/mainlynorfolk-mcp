@@ -140,6 +140,7 @@ shell completions.
 cargo test
 cargo clippy --all-targets -- -D warnings
 cargo fmt --all
+actionlint          # workflow lint, with shellcheck on the run: scripts
 ```
 
 Parsers are pure `&str` → model functions tested against saved fixtures in
@@ -164,6 +165,7 @@ Most jobs run only when the change touches their domain, so a skipped job is exp
 
 - `rust`: `src/`, `tests/`, `templates/`, the manifest and lockfile, `.cargo/`, the toolchain, rustfmt and clippy settings. Runs `Format` and `Linux` (clippy and the tests).
 - `apple`: the native inputs the Linux jobs cannot vouch for on macOS (`Cargo.toml`, `Cargo.lock`, a build script, `.cargo/`, the toolchain), code near a `cfg` for an Apple target, or a release pull request. Runs `macOS` (a release pull request also builds both darwin targets in release); a release push runs the signed `Release (macOS)` build instead. The account's macOS runners are few and shared, so a plain source change does not take one.
+- `workflows`: `.github/workflows/` or `.github/actions/`. Runs `Actionlint`.
 - `docker`: the `Dockerfile` or a native input on a pull request; on main any `rust` change, since CD ships the binaries. Runs the musl builds and the image.
 
 To add a domain, add its output to `changes` with an allowlist of paths, gate its jobs with a job-level `if:`, and add them to the `needs:` of `checks`.
