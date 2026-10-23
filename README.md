@@ -157,6 +157,20 @@ wrong:
 cargo test --test live_archive -- --ignored --test-threads=1
 ```
 
+## Changelog and releasing
+
+`CHANGELOG.md` is generated from fragments in `changelog.d/` by
+`scripts/changelog.py`, so concurrent pull requests never conflict on it. Every
+change adds one fragment under `changelog.d/unreleased/<section>/`; the format
+is in `changelog.d/README.md`, and `just changelog --stdout` previews the
+result.
+
+`just release patch|minor|major` (or an exact `X.Y.Z`) branches `release-vX.Y.Z`
+from main, bumps `Cargo.toml` and `Cargo.lock`, turns the unreleased fragments
+into the dated release and opens the release PR with that section as its body.
+Merging it is the release: CI sees the version change and publishes, as below.
+No tag is ever pushed by hand.
+
 ## CI/CD
 
 `.github/workflows/ci-cd.yml` is one pipeline. CI ends in `Checks`, the only status a ruleset should require; CD runs after it on main, in the same run, and ships what CI built.
