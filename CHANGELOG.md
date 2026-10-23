@@ -8,10 +8,15 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Security
 
 - Updated dependencies to fix RustSec advisories in h2 (RUSTSEC-2026-0258), quinn-proto (RUSTSEC-2026-0338 to 0342), rustls (RUSTSEC-2026-0285/0346/0348/0349), rustls-webpki (RUSTSEC-2026-0382) and webpki-root-certs (RUSTSEC-2026-0383).
+- Update tokio and other packages for security
 
 ### Changed
 
 - **CI and CD are one pipeline, gated by `Checks`.** Jobs run only for the parts of the repository a change touches, the Linux binaries are built once and are both what the image holds and what the release attaches, and nothing is tagged or released until every check has passed. The image's `main` tag moves only to a commit that descends from the one it holds, so a release finishing after a later push does not move it backwards. A push releases only when it changes the version, and a manual run on main retries a release that failed before it was published.
+
+### Internal
+
+- **Releases are cut with `just release`.** It opens the release pull request with the version bumped and the changelog fragments turned into the dated release, so the version never changes by hand on main. CHANGELOG.md is now generated from `changelog.d/`, and CI checks the fragments and the released history.
 
 ## [1.1.4] (2026-09-29)
 
@@ -82,7 +87,7 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   test jobs all run per-PR, and only pushing to the registry is gated on
   `main`.
 
-## [1.1.0] - 2026-07-26
+## [1.1.0] (2026-07-26)
 
 ### Changed
 
@@ -106,7 +111,7 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   so v1.0.2 got a GitHub release and no container image at all — and an
   auto-updater polling releases will happily pin one of those.
 
-## [1.0.2] - 2026-07-26
+## [1.0.2] (2026-07-26)
 
 ### Fixed
 
@@ -117,7 +122,7 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `/graphql` it talks to. Matches how `caldav-cli` and `fastmail-cli` already
   behave.
 
-## [1.0.1] - 2026-07-26
+## [1.0.1] (2026-07-26)
 
 ### Fixed
 
@@ -129,7 +134,7 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   pinned to the correct-looking name could not pull it. This release exists to
   publish under the right one; the code is unchanged.
 
-## [1.0.0] - 2026-07-26
+## [1.0.0] (2026-07-26)
 
 Renamed from `mainlynorfolk-cli` to `mainlynorfolk-mcp`, and reduced to the one
 thing it is actually used for.
@@ -161,7 +166,7 @@ thing it is actually used for.
 There is now one path through the crate — GraphQL resolver, to DataLoader, to
 API call — instead of two arriving from different directions.
 
-## [0.1.1] - 2026-07-25
+## [0.1.1] (2026-07-25)
 
 ### Fixed
 
@@ -180,7 +185,7 @@ API call — instead of two arriving from different directions.
   October 1989)`), and a `<br>` contributes no text, so they were being
   concatenated onto the name and carried into every attribution naming him.
 
-## [0.1.0] - 2026-07-25
+## [0.1.0] (2026-07-25)
 
 The initial feature set rather than a set of changes against a released
 version.

@@ -1,0 +1,1 @@
+- **Shell completions** for bash, zsh, fish, and others clap supports.

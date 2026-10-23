@@ -1,0 +1,1 @@
+- Supersedes an earlier MCP-only TypeScript implementation of the same idea.

@@ -1,0 +1,3 @@
+[tools]
+just = "latest"
+"aqua:rhysd/actionlint" = "1.7.12"
