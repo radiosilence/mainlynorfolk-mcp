@@ -1,0 +1,1 @@
+- **Releases are cut with `just release`.** It opens the release pull request with the version bumped and the changelog fragments turned into the dated release, so the version never changes by hand on main. CHANGELOG.md is now generated from `changelog.d/`, and CI checks the fragments and the released history.
