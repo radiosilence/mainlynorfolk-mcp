@@ -1,7 +1,8 @@
 # mainlynorfolk-mcp as a container. No build stage, no package manager — CI
-# builds the static musl binary and this image only copies it in. `docker
-# build .` by hand requires dist/ to be populated first; that is intended,
-# docker builds only ever happen in CI.
+# builds the static musl binaries and this image only copies them in. The
+# build context is dist/, holding dist/<arch>/folk for each architecture
+# (amd64, arm64), so `docker build` by hand needs those populated first and
+# `-f Dockerfile dist`; docker builds only ever happen in CI.
 
 FROM scratch
 
@@ -34,7 +35,7 @@ ENV HOME=/home/app
 ENV XDG_CACHE_HOME=/home/app/.cache
 VOLUME ["/home/app/.cache"]
 
-COPY dist/folk-linux-${TARGETARCH}-musl /folk
+COPY ${TARGETARCH}/folk /folk
 
 EXPOSE 8080
 

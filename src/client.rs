@@ -87,7 +87,11 @@ fn cache_dir() -> Option<PathBuf> {
 /// because POST search bodies are folded into the key by the caller.
 fn cache_key(url: &str) -> String {
     use sha2::{Digest, Sha256};
-    format!("{:x}.json", Sha256::digest(url.as_bytes()))
+    let hex: String = Sha256::digest(url.as_bytes())
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    format!("{hex}.json")
 }
 
 /// Pages held in memory before the disk cache is consulted.

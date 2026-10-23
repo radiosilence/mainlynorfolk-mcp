@@ -5,6 +5,14 @@ versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- Updated dependencies to fix RustSec advisories in h2 (RUSTSEC-2026-0258), quinn-proto (RUSTSEC-2026-0338 to 0342), rustls (RUSTSEC-2026-0285/0346/0348/0349), rustls-webpki (RUSTSEC-2026-0382) and webpki-root-certs (RUSTSEC-2026-0383).
+
+### Changed
+
+- **CI and CD are one pipeline, gated by `Checks`.** Jobs run only for the parts of the repository a change touches, the Linux binaries are built once and are both what the image holds and what the release attaches, and nothing is tagged or released until every check has passed. The image's `main` tag moves only to a commit that descends from the one it holds, so a release finishing after a later push does not move it backwards. A push releases only when it changes the version, and a manual run on main retries a release that failed before it was published.
+
 ## [1.1.4] (2026-09-29)
 
 ### Changed
