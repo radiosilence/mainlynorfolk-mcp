@@ -485,10 +485,16 @@ jobs:
     timeout-minutes: 10
     needs: [container, check-version]
     if: ${{ !cancelled() && needs.container.result == 'success' && needs.check-version.result == 'success' }}
-    # One at a time across runs: two that read the tag together could both
-    # see their commit ahead, and the one finishing last would win.
+    # One at a time among non-release runs, and among release runs: two that
+    # read the tag together could both see their commit ahead, and the one
+    # finishing last would win. A group keeps one pending job and cancels it
+    # when another queues, so release runs wait in a group of their own
+    # rather than behind ordinary pushes. A release run and a non-release run
+    # can therefore overlap, and if both read the tag before either moves it,
+    # `main` can be left on the older commit until the next push that builds
+    # an image.
     concurrency:
-      group: container-main
+      group: container-main${{ needs.check-version.outputs.should_release == 'true' && '-release' || '' }}
       cancel-in-progress: false
     permissions:
       contents: read
@@ -502,8 +508,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - run: docker buildx imagetools create -t "$IMAGE:sha-${GITHUB_SHA::7}" "$IMAGE:$GITHUB_SHA"
       # A release run is never cancelled and can finish after a later push's
-      # run, so `main` moves only forward: not onto a commit behind the one the
-      # tag holds now, read from its revision label. Main's head is no guide,
+      # run, so `main` moves only forward of the commit the tag holds when this
+      # step reads it (its revision label). Main's head is no guide,
       # since a later push that builds no image moves it without retagging.
       #
       # A missing tag, a tag without the label, or a labelled commit that
